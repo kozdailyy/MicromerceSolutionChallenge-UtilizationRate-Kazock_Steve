@@ -14,7 +14,7 @@ type Period = {
   timeBudget?: string;
 };
 
-type CostsByMonth = {
+export type CostsByMonth = {
   _applicationId: string;
   periods?: Period[];
   costsByMonth?: { costs: string; month: string }[];
@@ -36,7 +36,7 @@ type StatusAggregation = {
   status: string;
 };
 
-type QuarterEarnings = {
+export type QuarterEarnings = {
   earnings: string;
   start: string;
   name: string;
@@ -48,13 +48,14 @@ type LastThreeMonthsIndividually = {
   utilisationRate: string;
 };
 
-type WorkforceUtilisation = {
+export type WorkforceUtilisation = {
   _updatedDate: string;
   totalCostPerCustomer?: string;
   _createdDate: string;
   utilisationRateOngoingQuarter?: string;
   monthlyCostDifference?: string;
   utilisationRateLastTwelveMonths?: string;
+  quarterEarnings?: QuarterEarnings[];
   timeWorkedPreviousQuarter?: string;
   utilisationRateOverall?: string;
   utilisationRateYearToDate?: string;

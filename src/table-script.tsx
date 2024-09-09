@@ -6,6 +6,7 @@ import {
 import { useMemo } from "react";
 import sourceData from "./source-data.json";
 import type { SourceDataType, TableDataType } from "./types";
+import { getNetEarningsPrevMonth } from "./utils";
 
 /**
  * Example of how a tableData object should be structured.
@@ -20,23 +21,55 @@ import type { SourceDataType, TableDataType } from "./types";
  * @prop {number} netEarningsPrevMonth - The net earnings for the previous month.
  */
 
-const tableData: TableDataType[] = (
-  sourceData as unknown as SourceDataType[]
-).map((dataRow, index) => {
-  const person = `${dataRow?.employees?.firstname} - ...`;
+const tableData: TableDataType[] = (sourceData as unknown as SourceDataType[])
+  .map((dataRow, index) => {
+    const workforce = dataRow?.employees
+      ? dataRow?.employees
+      : dataRow?.externals
+      ? dataRow?.externals
+      : null;
+    const person = `${workforce?.firstname} - ...`;
+    const past12Months =
+      Number(workforce?.workforceUtilisation?.utilisationRateLastTwelveMonths) *
+      100;
+    const y2d =
+      Number(workforce?.workforceUtilisation?.utilisationRateYearToDate) * 100;
 
-  const row: TableDataType = {
-    person: `${person}`,
-    past12Months: `past12Months ${index} placeholder`,
-    y2d: `y2d ${index} placeholder`,
-    may: `may ${index} placeholder`,
-    june: `june ${index} placeholder`,
-    july: `july ${index} placeholder`,
-    netEarningsPrevMonth: `netEarningsPrevMonth ${index} placeholder`,
-  };
+    const may = workforce?.workforceUtilisation?.lastThreeMonthsIndividually
+      ? Number(
+          workforce?.workforceUtilisation?.lastThreeMonthsIndividually[0]
+            ?.utilisationRate
+        ) * 100
+      : 0;
+    const june = workforce?.workforceUtilisation?.lastThreeMonthsIndividually
+      ? Number(
+          workforce?.workforceUtilisation?.lastThreeMonthsIndividually[1]
+            ?.utilisationRate
+        ) * 100
+      : 0;
+    const july = workforce?.workforceUtilisation?.lastThreeMonthsIndividually
+      ? Number(
+          workforce?.workforceUtilisation?.lastThreeMonthsIndividually[2]
+            ?.utilisationRate
+        ) * 100
+      : 0;
 
-  return row;
-});
+    const netEarningsPrevMonth = workforce?.workforceUtilisation
+      ? getNetEarningsPrevMonth(workforce?.workforceUtilisation)
+      : 0;
+    const row: TableDataType = {
+      person: `${person}`,
+      past12Months: `${past12Months}%`,
+      y2d: `${y2d}%`,
+      may: `${may}%`,
+      june: `${june}%`,
+      july: `${july}%`,
+      netEarningsPrevMonth: `${netEarningsPrevMonth} EUR`,
+    };
+
+    return row;
+  })
+  .filter((dataRow) => dataRow.y2d.includes("NaN") === false);
 
 const Example = () => {
   const columns = useMemo<MRT_ColumnDef<TableDataType>[]>(
